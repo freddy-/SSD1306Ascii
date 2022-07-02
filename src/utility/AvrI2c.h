@@ -126,7 +126,14 @@ class AvrI2c {
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 
     // wait until stop condition is executed and bus released
-    while (TWCR & (1 << TWSTO)) {}
+    unsigned long startMillis = millis();
+    //Serial.println("stop: before while");
+    while ((TWCR & (1 << TWSTO)) && ((millis() - startMillis) < I2C_TIMEOUT_MS)) {}
+    if ((millis() - startMillis) >= I2C_TIMEOUT_MS) {
+      TWCR = 0;
+      timedOut = 1;
+    }
+    //Serial.println("stop: after while");
   }
   /**
    * @brief Write a byte.
@@ -141,16 +148,32 @@ class AvrI2c {
     return status() == TWSR_MTX_DATA_ACK;
   }
 
+  uint8_t getAndClearTimeoutFlag() {
+    uint8_t temp = timedOut;
+    timedOut = 0;
+    return temp;
+  }
+
  private:
   uint8_t status_;
+  uint8_t timedOut = 0;
 
   void execCmd(uint8_t cmdReg) {
     // send command
     TWCR = cmdReg;
     // wait for command to complete
-    while (!(TWCR & (1 << TWINT))) {}
+    unsigned long startMillis = millis();
+    //Serial.println("execCmd: before while");
+    while (!(TWCR & (1 << TWINT)) && ((millis() - startMillis) < I2C_TIMEOUT_MS)) { }
+    
+    //Serial.println("execCmd: after while");
+    if ((millis() - startMillis) >= I2C_TIMEOUT_MS) {
+      TWCR = 0;
+      timedOut = 1;
+    }
     // status bits.
     status_ = TWSR & 0xF8;
+    //Serial.println(status_);
   }
 };
 #endif  // AvrI2c_h

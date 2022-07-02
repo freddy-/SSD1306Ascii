@@ -66,6 +66,10 @@ class SSD1306AsciiAvrI2c : public SSD1306Ascii {
    */
   void setI2cClock(uint32_t frequency) {m_i2c.setClock(frequency);}
 
+  uint8_t shoudClear() {
+    return m_i2c.getAndClearTimeoutFlag();
+  }
+
  protected:
   void writeDisplay(uint8_t b, uint8_t mode) {
     if ((m_nData && mode == SSD1306_MODE_CMD)) {

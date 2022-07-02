@@ -39,7 +39,7 @@
  *
  * If INCLUDE_SCROLLING is nonzero, the scroll feature will included.
  */
-#define INCLUDE_SCROLLING 1
+#define INCLUDE_SCROLLING 0
 
 /** Initial scroll mode, SCROLL_MODE_OFF,
     SCROLL_MODE_AUTO, or SCROLL_MODE_APP. */
@@ -56,6 +56,8 @@
 #ifdef __AVR__
 // Save memory on AVR. Set nonzero to use alternate I2C or software I2c on AVR.
 #define MULTIPLE_I2C_PORTS 0
+// Timeout for i2c communication
+#define I2C_TIMEOUT_MS 100
 #else  // __AVR__
 #define MULTIPLE_I2C_PORTS 1
 #endif  // __AVR__
